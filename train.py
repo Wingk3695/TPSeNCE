@@ -39,8 +39,14 @@ if __name__ == '__main__':
             if len(opt.gpu_ids) > 0:
                 torch.cuda.synchronize()
             optimize_start_time = time.time()
+            import inspect
             if epoch == opt.epoch_count and i == 0:
-                model.data_dependent_initialize(data)
+                # 判断 data_dependent_initialize 是否需要 data 参数
+                sig = inspect.signature(model.data_dependent_initialize)
+                if len(sig.parameters) > 1:
+                    model.data_dependent_initialize(data)
+                else:
+                    model.data_dependent_initialize()
                 model.setup(opt)               # regular setup: load and print networks; create schedulers
                 model.parallelize()
             model.set_input(data)  # unpack data from dataset and apply preprocessing

@@ -86,7 +86,7 @@ class CUTModel(BaseModel):
             self.criterionNCE = []
 
             for nce_layer in self.nce_layers:
-                self.criterionNCE.append(PatchNCELoss(opt).to(self.device))
+                self.criterionNCE.append(PatchNCELoss(opt).to(self.device))     #criterionNCE 作为后续计算部分
 
             self.criterionIdt = torch.nn.L1Loss().to(self.device)
             self.optimizer_G = torch.optim.Adam(self.netG.parameters(), lr=opt.lr, betas=(opt.beta1, opt.beta2))
@@ -232,12 +232,12 @@ class CUTModel(BaseModel):
             feat_q = [torch.flip(fq, [3]) for fq in feat_q]
 
         feat_k = self.netG(src, self.nce_layers, encode_only=True)
-        feat_k_pool, sample_ids = self.netF(feat_k, self.opt.num_patches, None)
+        feat_k_pool, sample_ids = self.netF(feat_k, self.opt.num_patches, None)     # netF似乎是计算q和k的特征图
         feat_q_pool, _ = self.netF(feat_q, self.opt.num_patches, sample_ids)
 
         total_nce_loss = 0.0
         for f_q, f_k, crit, nce_layer in zip(feat_q_pool, feat_k_pool, self.criterionNCE, self.nce_layers):
-            loss = crit(f_q, f_k) * self.opt.lambda_NCE
+            loss = crit(f_q, f_k) * self.opt.lambda_NCE     # NCE loss计算
             total_nce_loss += loss.mean()
 
         return total_nce_loss / n_layers

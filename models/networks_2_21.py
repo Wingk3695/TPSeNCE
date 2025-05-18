@@ -269,6 +269,7 @@ def define_G(input_nc, output_nc, ngf, netG, norm='batch', use_dropout=False, in
 
 
 def define_F(input_nc, netF, norm='batch', use_dropout=False, init_type='normal', init_gain=0.02, no_antialias=False, gpu_ids=[], opt=None):
+    """net Feature extractor"""
     if netF == 'global_pool':
         net = PoolingF()
     elif netF == 'reshape':
